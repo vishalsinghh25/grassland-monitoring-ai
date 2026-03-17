@@ -1,30 +1,24 @@
-from flask import Flask, render_template, request
+import streamlit as st
 import os
 
-app = Flask(__name__)
+st.title("🌿 Grassland Monitoring AI")
 
-UPLOAD_FOLDER = "uploads"
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+uploaded_file = st.file_uploader("Upload an image", type=["jpg", "png", "jpeg"])
 
+if uploaded_file is not None:
+    # Create uploads folder
+    if not os.path.exists("uploads"):
+        os.makedirs("uploads")
 
-@app.route("/")
-def home():
-    return render_template("index.html")
+    filepath = os.path.join("uploads", uploaded_file.name)
 
+    # Save file
+    with open(filepath, "wb") as f:
+        f.write(uploaded_file.getbuffer())
 
-@app.route("/predict", methods=["POST"])
-def predict():
+    st.image(uploaded_file, caption="Uploaded Image", use_column_width=True)
 
-    file = request.files["image"]
+    # Dummy prediction
+    prediction = "Grassland image uploaded successfully"
 
-    if file:
-        filepath = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
-        file.save(filepath)
-
-        prediction = "Grassland image uploaded successfully"
-
-        return render_template("index.html", result=prediction)
-
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000) 
+    st.success(prediction)
